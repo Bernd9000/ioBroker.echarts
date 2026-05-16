@@ -1462,18 +1462,21 @@ class ChartOption {
                     }
 
                     if (position !== 'right') {
-                        if (wMin > padLeft) {
-                            padLeft = wMin;
+                        // Also account for yAxisOffset so shifted axes don't overlap the legend/chart area
+                        const axisOffset = parseFloat((_yAxis as any).offset) || 0;
+                        if (wMin + axisOffset > padLeft) {
+                            padLeft = wMin + axisOffset;
                         }
-                        if (wMax > padLeft) {
-                            padLeft = wMax;
+                        if (wMax + axisOffset > padLeft) {
+                            padLeft = wMax + axisOffset;
                         }
                     } else {
-                        if (wMin > padRight) {
-                            padRight = wMin;
+                        const axisOffset = parseFloat((_yAxis as any).offset) || 0;
+                        if (wMin + axisOffset > padRight) {
+                            padRight = wMin + axisOffset;
                         }
-                        if (wMax > padRight) {
-                            padRight = wMax;
+                        if (wMax + axisOffset > padRight) {
+                            padRight = wMax + axisOffset;
                         }
                     }
                 });
