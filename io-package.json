@@ -180,7 +180,7 @@
             "uk": "Показує збережений пресет echarts",
             "zh-cn": "显示保存的echarts预设"
           },
-          "icon": "chart.png"
+          "icon": "echarts.svg"
         }
       ]
     },
