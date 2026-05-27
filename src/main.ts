@@ -52,7 +52,7 @@ class EchartsAdapter extends Adapter {
     public __lastMessageTime = 0;
     public __lastMessageText = '';
     private cachedSnapshots: Record<string, { ts: number; data: string | null; error: string | null }> = {};
-    private socketSimulator: Connection | null= null;
+    private socketSimulator: Connection | null = null;
 
     public constructor(options: Partial<AdapterOptions> = {}) {
         super({
@@ -117,7 +117,7 @@ class EchartsAdapter extends Adapter {
 
                     const chartOption = new ChartOption(moment, theme, calcTextWidth);
                     const option = chartOption.getOption(seriesData, chartData.getConfig(), null, barCategories);
-                    const { window } = new JsDomClass!();
+                    const { window } = new JsDomClass();
 
                     // @ts-expect-error must be so
                     global.window = window;
@@ -132,7 +132,7 @@ class EchartsAdapter extends Adapter {
                     let canvas: Canvas | undefined;
                     let root: HTMLDivElement | undefined;
                     if (options.renderer && options.renderer !== 'svg') {
-                        canvas = createCanvas(options.width!, options.height!);
+                        canvas = createCanvas(options.width, options.height);
                         canvas.width = options.width!;
                         canvas.height = options.height!;
                         chart = echartsInit(canvas as unknown as HTMLElement);
@@ -186,7 +186,7 @@ class EchartsAdapter extends Adapter {
                         }
                         case '':
                         case 'svg': {
-                            const svg = root.querySelector('svg')!.outerHTML;
+                            const svg = root.querySelector('svg').outerHTML;
                             data = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
                             break;
                         }

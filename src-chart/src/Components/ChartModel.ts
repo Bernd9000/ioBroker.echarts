@@ -537,9 +537,7 @@ class ChartModel {
             }
         } else {
             this.config ||= {} as ChartConfig;
-            this.config.useComma = this.config.useComma
-                ? this.systemConfig?.isFloatComma === true
-                : this.config.useComma === true;
+            this.config.useComma = this.config.useComma ?? this.systemConfig?.isFloatComma === true;
             this.config.lang = this.systemConfig?.language || 'en';
             this.config.live = getInt(this.config?.live);
             this.config.debug = this.debug;
@@ -693,7 +691,7 @@ class ChartModel {
 
     getConfig(): ChartConfig {
         if (!this.config) {
-            throw new Error('Unexpected')
+            throw new Error('Unexpected null config');
         }
         return this.config;
     }
@@ -708,7 +706,7 @@ class ChartModel {
 
     increaseRegionForBar(start: number | Date, end: number | Date, option: ioBroker.GetHistoryOptions): void {
         if (!this.config) {
-            throw new Error('Unexpected null config')
+            throw new Error('Unexpected null config');
         }
         this.config.aggregateBar = getInt(this.config.aggregateBar);
         let endTs = typeof end === 'number' ? end : end.getTime();
@@ -1790,7 +1788,7 @@ class ChartModel {
             }
         });
 
-        this.onUpdateFunc(updateData, this.actualValues, this.barCategories);
+        this.onUpdateFunc?.(updateData, this.actualValues, this.barCategories);
     }
 
     onStateChange = (id: string, state: ioBroker.State | null | undefined): void => {
@@ -1859,7 +1857,9 @@ class ChartModel {
                 break;
             }
         }
-        changed && this.onUpdateFunc(null, this.actualValues);
+        if (changed) {
+            this.onUpdateFunc?.(null, this.actualValues);
+        }
     };
 
     static addTime(time: number | Date, offset: string | number, isOffsetInMinutes?: boolean): number {
@@ -1916,11 +1916,11 @@ class ChartModel {
                     _from,
                     to,
                 );
-                _from = values && values.length ? values[values.length - 1].ts + 1 : 0;
+                _from = values?.length ? values[values.length - 1].ts + 1 : 0;
                 data = data.concat(values);
             }
-            if (values) {
-                result[this.config.l[i].id] = values;
+            if (data) {
+                result[this.config.l[i].id] = data;
             }
         }
 

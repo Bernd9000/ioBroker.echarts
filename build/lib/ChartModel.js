@@ -44,7 +44,7 @@ function getFloat(value) {
     if (value === false || value === 'null' || value === '') {
         return 0;
     }
-    const f = parseFloat(value);
+    const f = parseFloat(value || '0');
     if (isNaN(f)) {
         return 0;
     }
@@ -57,7 +57,7 @@ function getInt(value) {
     if (value === 'null') {
         return 0;
     }
-    const f = parseInt(value, 10);
+    const f = parseInt(value || '0', 10);
     if (isNaN(f)) {
         return 0;
     }
@@ -370,9 +370,8 @@ class ChartModel {
             }
         }
         else {
-            this.config.useComma = this.config.useComma
-                ? this.systemConfig?.isFloatComma === true
-                : this.config.useComma === true;
+            this.config ||= {};
+            this.config.useComma = this.config.useComma ?? this.systemConfig?.isFloatComma === true;
             this.config.lang = this.systemConfig?.language || 'en';
             this.config.live = getInt(this.config?.live);
             this.config.debug = this.debug;
@@ -425,10 +424,12 @@ class ChartModel {
                 this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
                 this.readOnZoomTimeout = setTimeout(() => {
                     this.readOnZoomTimeout = null;
-                    if (this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
+                    if (this.config?.live && (!this.zoomData || !this.zoomData.stopLive)) {
                         console.log('Restore update');
-                        this.updateInterval && clearInterval(this.updateInterval);
-                        this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+                        if (this.updateInterval) {
+                            clearInterval(this.updateInterval);
+                        }
+                        this.updateInterval = setInterval(() => this.readData(), (this.config?.live || 10) * 1000);
                     }
                     void this.readData();
                 }, this.updateTimeout);
@@ -485,7 +486,7 @@ class ChartModel {
             if (!this.serverSide) {
                 void this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
             }
-            this.presetSubscribed = null;
+            this.presetSubscribed = '';
         }
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
@@ -508,6 +509,9 @@ class ChartModel {
         this.onErrorFunc = cb;
     }
     getConfig() {
+        if (!this.config) {
+            throw new Error('Unexpected null config');
+        }
         return this.config;
     }
     getSystemConfig() {
@@ -517,6 +521,9 @@ class ChartModel {
         void this.analyseAndLoadConfig(config);
     }
     increaseRegionForBar(start, end, option) {
+        if (!this.config) {
+            throw new Error('Unexpected null config');
+        }
         this.config.aggregateBar = getInt(this.config.aggregateBar);
         let endTs = typeof end === 'number' ? end : end.getTime();
         let startTs = typeof start === 'number' ? start : start.getTime();
@@ -624,7 +631,10 @@ class ChartModel {
         let endTs;
         let startTs;
         let _nowTs;
-        this.config.l[index].offset = this.config.l[index].offset || 0;
+        if (!this.config) {
+            throw new Error('Unexpected null config');
+        }
+        this.config.l[index].offset ||= 0;
         // check config range
         if (typeof this.config.range === 'string' && this.config.range.includes('m') && this.config.l.length > 1) {
             const monthRange = getInt(this.config.range) || 1;
@@ -1508,7 +1518,7 @@ class ChartModel {
                 updateData[index] = this.seriesData[index];
             }
         });
-        this.onUpdateFunc(updateData, this.actualValues, this.barCategories);
+        this.onUpdateFunc?.(updateData, this.actualValues, this.barCategories);
     }
     onStateChange = (id, state) => {
         if (!id || !state || this.reading) {
@@ -1562,7 +1572,9 @@ class ChartModel {
                 break;
             }
         }
-        changed && this.onUpdateFunc(null, this.actualValues);
+        if (changed) {
+            this.onUpdateFunc?.(null, this.actualValues);
+        }
     };
     static addTime(time, offset, isOffsetInMinutes) {
         const date = new Date(time);
@@ -1611,11 +1623,11 @@ class ChartModel {
             let values = data;
             while (values?.length === 2000) {
                 values = await this.readOneRawChart(this.config.l[i].id, this.config.l[i].instance || this.defaultHistory, _from, to);
-                _from = values && values.length ? values[values.length - 1].ts + 1 : 0;
+                _from = values?.length ? values[values.length - 1].ts + 1 : 0;
                 data = data.concat(values);
             }
-            if (values) {
-                result[this.config.l[i].id] = values;
+            if (data) {
+                result[this.config.l[i].id] = data;
             }
         }
         return result;

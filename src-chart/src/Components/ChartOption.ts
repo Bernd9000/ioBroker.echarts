@@ -813,7 +813,7 @@ class ChartOption {
                                 (options.yAxis as YAXisOption[])[0].min = limitFloat;
                             }
                         }
-                        const yMax = parseFloat(this.config.l[oneMark.lineId].min as unknown as string);
+                        const yMax = parseFloat(this.config.l[oneMark.lineId].max as unknown as string);
                         if (Number.isNaN(yMax) && this.chart.yAxis[oneMark.lineId]) {
                             if ((this.chart.yAxis[oneMark.lineId].max as number) < limitFloat) {
                                 (options.yAxis as YAXisOption[])[0].max = limitFloat;

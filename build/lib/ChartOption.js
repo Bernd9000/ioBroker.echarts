@@ -702,7 +702,7 @@ class ChartOption {
                                 options.yAxis[0].min = limitFloat;
                             }
                         }
-                        const yMax = parseFloat(this.config.l[oneMark.lineId].min);
+                        const yMax = parseFloat(this.config.l[oneMark.lineId].max);
                         if (Number.isNaN(yMax) && this.chart.yAxis[oneMark.lineId]) {
                             if (this.chart.yAxis[oneMark.lineId].max < limitFloat) {
                                 options.yAxis[0].max = limitFloat;

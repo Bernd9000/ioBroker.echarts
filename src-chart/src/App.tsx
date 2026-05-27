@@ -88,7 +88,7 @@ interface AppState {
 
 class App extends Component<AppProps, AppState> {
     private readonly socket: Connection;
-    private chartData: ChartModel;
+    private chartData?: ChartModel;
     private readonly inEdit: boolean;
     private readonly divRef: React.RefObject<HTMLDivElement>;
     private readonly progressRef: React.RefObject<HTMLDivElement>;
@@ -207,9 +207,6 @@ class App extends Component<AppProps, AppState> {
                     } else {
                         this.setState({ connected: false });
                     }
-                } else if (progress === PROGRESS.READY) {
-                    this.setState({ connected: true });
-                    this.restoreAfterReconnection();
                 } else {
                     this.setState({ connected: true });
                     this.restoreAfterReconnection();
@@ -251,7 +248,7 @@ class App extends Component<AppProps, AppState> {
             this.progressRef.current.style.display = 'none';
         }
         if (this.state.seriesData && !this.state.seriesData.find(series => series.length)) {
-            this.chartData.setNewRange();
+            this.chartData?.setNewRange();
         }
     }
 
@@ -293,6 +290,10 @@ class App extends Component<AppProps, AppState> {
     }
 
     componentWillUnmount(): void {
+        if (this.adminCorrectTimeout) {
+            clearTimeout(this.adminCorrectTimeout);
+            this.adminCorrectTimeout = null;
+        }
         this.inEdit && window.removeEventListener('message', this.onReceiveMessage, false);
         this.chartData && this.chartData.destroy();
     }
@@ -356,6 +357,9 @@ class App extends Component<AppProps, AppState> {
             );
         }
 
+        if (!this.chartData) {
+            throw new Error('Unexpected null chartData');
+        }
         const config: ChartConfigMore = this.chartData.getConfig() as ChartConfigMore;
         // get IDs hash
         const hash = MD5(JSON.stringify((config?.l?.map(item => item.id) || []).sort())).toString();

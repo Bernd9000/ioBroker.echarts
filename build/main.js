@@ -1,40 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  *
@@ -49,7 +13,7 @@ const node_fs_1 = require("node:fs");
 const node_child_process_1 = require("node:child_process");
 const node_path_1 = require("node:path");
 const node_module_1 = require("node:module");
-const moment = __importStar(require("moment"));
+const moment = require("moment");
 require("moment/locale/en-gb");
 require("moment/locale/es");
 require("moment/locale/fr");
@@ -62,8 +26,8 @@ require("moment/locale/zh-cn");
 require("moment/locale/de");
 const echarts_1 = require("echarts");
 const adapter_core_1 = require("@iobroker/adapter-core");
-const ChartModel_1 = __importDefault(require("./lib/ChartModel"));
-const ChartOption_1 = __importDefault(require("./lib/ChartOption"));
+const ChartModel_1 = require("./lib/ChartModel");
+const ChartOption_1 = require("./lib/ChartOption");
 const socketSimulator_1 = require("./lib/socketSimulator");
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
@@ -93,7 +57,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
     async renderImage(options) {
         if (JsDomClass === undefined) {
             try {
-                JsDomClass = (await Promise.resolve().then(() => __importStar(require('jsdom')))).JSDOM;
+                JsDomClass = (await Promise.resolve().then(() => require('jsdom'))).JSDOM;
                 this.socketSimulator ||= (0, socketSimulator_1.getSocket)(this);
             }
             catch (e) {
@@ -108,7 +72,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
         if (needsCanvas) {
             if (createCanvas === undefined) {
                 try {
-                    const canvasModule = await Promise.resolve().then(() => __importStar(require('canvas')));
+                    const canvasModule = await Promise.resolve().then(() => require('canvas'));
                     createCanvas = canvasModule.createCanvas;
                     CanvasClass = canvasModule.Canvas;
                 }
@@ -394,7 +358,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
         }
         // Pre-load rendering modules so issues are visible in the log at startup
         try {
-            JsDomClass = (await Promise.resolve().then(() => __importStar(require('jsdom')))).JSDOM;
+            JsDomClass = (await Promise.resolve().then(() => require('jsdom'))).JSDOM;
             this.socketSimulator = (0, socketSimulator_1.getSocket)(this);
         }
         catch (e) {
@@ -402,7 +366,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
             this.log.error(`Cannot load jsdom module: ${e}. Chart rendering will not be available.`);
         }
         try {
-            const canvasModule = await Promise.resolve().then(() => __importStar(require('canvas')));
+            const canvasModule = await Promise.resolve().then(() => require('canvas'));
             createCanvas = canvasModule.createCanvas;
             CanvasClass = canvasModule.Canvas;
         }
@@ -417,7 +381,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                     }
                 }
                 try {
-                    const canvasModule = await Promise.resolve().then(() => __importStar(require('canvas')));
+                    const canvasModule = await Promise.resolve().then(() => require('canvas'));
                     createCanvas = canvasModule.createCanvas;
                     CanvasClass = canvasModule.Canvas;
                     this.log.info('Canvas loaded successfully after rebuild. PNG/JPG/PDF rendering is available.');

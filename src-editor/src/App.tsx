@@ -665,7 +665,9 @@ export default class App extends GenericApp<AppProps, AppState> {
             // load preset
             const obj = await this.socket.getObject(selectedId as string);
             if (obj?.native?.data) {
-                const hash = `#preset=${selectedId}`;
+                const selectedIdSrc = typeof selectedId === 'string' ? selectedId : JSON.stringify(selectedId);
+
+                const hash = `#preset=${selectedIdSrc}`;
                 if (window.location.hash !== hash) {
                     window.location.hash = hash;
                 }
