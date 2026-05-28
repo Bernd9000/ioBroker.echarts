@@ -249,10 +249,15 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     constructor(props: ChartViewProps) {
         super(props);
 
+        // Initialize excluded with lines that have hide=true ("show only in legend")
+        const initialExcluded: string[] = props.config?.l
+            ?.filter((line: ChartLineConfigMore) => line.hide === true)
+            .map((line: ChartLineConfigMore) => line.id) || [];
+
         this.state = {
             chartHeight: null,
             chartWidth: null,
-            excluded: [],
+            excluded: initialExcluded,
             timeFormat: window.localStorage.getItem('Chart.timeFormat') || 'locale',
             data: null,
             exporting: false,
@@ -1114,7 +1119,16 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                         } else {
                                             excluded.splice(pos, 1);
                                         }
-                                        this.setState({ excluded });
+                                        this.setState({ excluded }, () => {
+                                            // immediately apply visibility to chart
+                                            if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                                                const selected: Record<string, boolean> = {};
+                                                this.props.config.l.forEach(l => {
+                                                    selected[l.name] = !this.state.excluded.includes(l.id);
+                                                });
+                                                this.echartsReact.getEchartsInstance().setOption({ legend: { selected } });
+                                            }
+                                        });
                                     }}
                                 >
                                     <Checkbox checked={!this.state.excluded.includes(line?.id)} />
